@@ -14,7 +14,7 @@
         android:layout_marginTop="364dp"
         android:background="@drawable/custom_btn"
         android:backgroundTint="@color/grey"
-        android:text="User"
+        android:text="GET STARTED"
         android:textColor="@color/black"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.504"
