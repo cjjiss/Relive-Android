@@ -11,6 +11,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
+import android.telephony.SmsManager;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
@@ -36,10 +37,8 @@ public class Accident extends AppCompatActivity {
     String str_name,str_blood,str_phone,str_address,str_email,str_hospital;
     FirebaseAuth Auth;
     FirebaseFirestore fstore;
-    Button b;
 
-    String userId,other;
-    SharedPreferences sharedPreferences;
+    String userId;
 
 
     @SuppressLint("MissingInflatedId")
@@ -83,46 +82,34 @@ public class Accident extends AppCompatActivity {
                                 txt_phone.setText(str_phone);
                                 txt_address.setText(str_address);
                                 txt_email.setText(str_email);
+
+                                //hospital phone number
+                                fstore.collection("USERS")
+                                        .whereEqualTo("type","true")
+                                        .get()
+                                        .addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
+                                            @Override
+                                            public void onComplete(@NonNull Task<QuerySnapshot> task) {
+                                                if(task.isSuccessful()){
+                                                    for (QueryDocumentSnapshot documentSnapshot : task.getResult()){
+                                                        str_hospital = documentSnapshot.getString("phone");
+                                                        txt_hospital.setText(str_hospital);
+
+                                                        //send sms on accident
+                                                        SmsManager smsManager = SmsManager.getDefault();
+                                                        String message = "ALERT !! An accident has occured on location SH college Thevara, the persons details are -" +
+                                                                " Name: " +str_name +" Blood type: " +str_blood ;
+                                                        String message2 =  "Address : "+str_address;
+                                                        smsManager.sendTextMessage(str_hospital,null,message,null,null);
+                                                        smsManager.sendTextMessage(str_hospital,null,message2,null,null);
+                                                    }
+                                                }
+                                            }
+                                        });
                             }
                         }
                     }
                 });
-
-        //hospital phone number
-
-        fstore.collection("USERS")
-                .whereEqualTo("type","true")
-                .get()
-                .addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
-                    @Override
-                    public void onComplete(@NonNull Task<QuerySnapshot> task) {
-                     if(task.isSuccessful()){
-                         for (QueryDocumentSnapshot documentSnapshot : task.getResult()){
-                             str_hospital = documentSnapshot.getString("phone");
-                             txt_hospital.setText(str_hospital);
-
-
-                         }
-                     }
-                    }
-                });
-        /*
-        DocumentReference documentReference = fstore.collection("USERS").document(userId);
-        documentReference.addSnapshotListener(this, new EventListener<DocumentSnapshot>() {
-            @Override
-            public void onEvent(@Nullable DocumentSnapshot value, @Nullable FirebaseFirestoreException error) {
-
-                name.setText(value.getString("name"));
-                blood.setText(value.getString("blood"));
-                phone.setText(value.getString("phone"));
-                address.setText(value.getString("address"));
-                email.setText(value.getString("email"));
-
-
-            }
-        });
-        */
-
 
     }
 }
